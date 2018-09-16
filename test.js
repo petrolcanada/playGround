@@ -1,6 +1,6 @@
-// const js = require('js')
+const fs = require('fs')
 
-// console.log("hello world")
+console.log("hello world")
 
 setTimeout(function(){
   console.log("1 second has passed")

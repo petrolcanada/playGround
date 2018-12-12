@@ -8,18 +8,18 @@ function getTicker(apiWanted){
       if (err) {
         reject(err);
       } else {
-        resolve(body)
+        resolve(JSON.parse(body));
       }
     })
   })
 };
 
 
-async function getTicker(apiWanted) {
-  const ticker = await request.get(apiWanted);
-  const tickerJSON = await ticker.json();
-  console.log(ticker);
-};
+// async function dataToJSON(apiWanted) {
+//   const ticker = await getTicker(apiWanted);
+//   const tickerJSON = await ticker.json();
+//   console.log(ticker);
+// };
 
 getTicker(url + '/symbols');
 

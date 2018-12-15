@@ -2,42 +2,47 @@ const request = require('request')
 const url = "https://api.bitfinex.com/v1"
 
 
-function getTicker(apiWanted){
+function getSymbol(){
+  const apiWanted = url + '/symbols'
   return new Promise(function(resolve,reject){
     request.get(apiWanted,function(err,res,body){
       if (err) {
         reject(err);
       } else {
-<<<<<<< HEAD
-        resolve(res.body)
-=======
-        resolve(JSON.parse(body));
->>>>>>> bb64ca13c257531d2c9b3123a9e3f43b15bcff45
+        resolve(JSON.parse(res.body))
+      }
+    })
+  })
+};
+
+function getTicker(symbol){
+  const apiWanted = url + '/pubticker/' + symbol
+  return new Promise(function(resolve,reject){
+    request.get(apiWanted,function(err,res){
+      if(err){
+        reject(err);
+      }else{
+        resolve(JSON.parse(res.body));
       }
     })
   })
 };
 
 
-<<<<<<< HEAD
-async function tickerIterater(apiWanted) {
-  const tickerRaw = await getTicker(apiWanted);
-  const tickerJSON = JSON.parse(tickerRaw)
-  console.log(typeof tickerRaw,typeof tickerJSON )
-  for (const key in tickerJSON){
-    console.log(key + "->" + tickerJSON[key]);
+
+async function tickerIterater() {
+  const symbol = await getSymbol();
+  console.log(typeof symbol)
+  for (const key in symbol){
+    if (symbol[key] == 'btcusd' ){
+      const ticker = await getTicker(symbol[key])
+      console.log(key + "->" + symbol[key],"  ", ticker);
+    }
   }
   // console.log(tickerRaw);
 };
-=======
-// async function dataToJSON(apiWanted) {
-//   const ticker = await getTicker(apiWanted);
-//   const tickerJSON = await ticker.json();
-//   console.log(ticker);
-// };
->>>>>>> bb64ca13c257531d2c9b3123a9e3f43b15bcff45
 
-tickerIterater(url + '/symbols');
+tickerIterater();
 
 // request.get(url + '/symbols',
 //   function(error, response, body) {

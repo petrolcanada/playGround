@@ -49,7 +49,6 @@ function getOrderBook(symbol){
 
 async function tickerIterater() {
   const symbol = await getSymbol();
-  console.log(typeof symbol);
   for (const key in symbol){
     if (symbol[key] == 'btcusd' ){
       const ticker = await getTicker(symbol[key]);

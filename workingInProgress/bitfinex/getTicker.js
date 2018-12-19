@@ -1,5 +1,7 @@
 const request = require('request');
 const fs = require('fs');
+const http = require("http");
+
 
 const url = "https://api.bitfinex.com/v1"
 
@@ -58,7 +60,40 @@ async function tickerIterater() {
     };
   };
   var orderBookBid = orderBook["bids"];
-  console.log(orderBookBid);
+  var orderBookAsk = orderBook["asks"];
+  orderBookBid.forEach(element => {
+    element["source"] = "bitfinex";
+  });
+  orderBookAsk.forEach(element => {
+    element["source"] = "bitfinex";
+  });
+
+  var sumAmountBid = 0;
+  var maxPriceBid = parseFloat(orderBookBid[0]["price"]);
+  var minPriceBid = parseFloat(orderBookBid[orderBookBid.length - 1]["price"]);
+  orderBookBid.forEach(element => {
+    sumAmountBid = sumAmountBid + parseFloat(element["amount"]);
+  });
+
+
+  var sumAmountAsk = 0;
+  var maxPriceAsk = parseFloat(orderBookAsk[orderBookAsk.length - 1]["price"]);
+  var minPriceAsk = parseFloat(orderBookAsk[0]["price"]);
+  orderBookAsk.forEach(element => {
+    sumAmountAsk = sumAmountAsk + parseFloat(element["amount"]);
+  });
+
+  bidState = "Bid:" + minPriceBid + "~" + maxPriceBid + " amt: " + sumAmountBid + "\n" 
+  askState = "Ask:" + minPriceAsk + "~" + maxPriceAsk + " amt: " + sumAmountAsk + "\n" 
+  
+  const app = http.createServer(function(req,res){
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.write(bidState + askState);
+    res.end();
+  }).listen(2000);
+  
 };
 
 tickerIterater();
+
+

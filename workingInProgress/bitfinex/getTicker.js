@@ -91,6 +91,8 @@ async function tickerIterater() {
     res.write(bidState + askState);
     res.end();
   }).listen(2000);
+
+  console.log("please log in to http://localhost:2000")
   
 };
 

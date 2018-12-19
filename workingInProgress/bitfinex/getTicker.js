@@ -1,6 +1,9 @@
 const request = require('request');
-const url = "https://api.bitfinex.com/v1"
 const fs = require('fs');
+
+const url = "https://api.bitfinex.com/v1"
+
+
 
 function getSymbol(){
   const apiWanted = url + '/symbols'
@@ -23,7 +26,7 @@ function getTicker(symbol,callback){
         reject(err);
       }else{
         resolve(JSON.parse(res.body));
-        console.log(JSON.parse(res.body));
+        // console.log(JSON.parse(res.body));
       }
     })
   })
@@ -31,27 +34,32 @@ function getTicker(symbol,callback){
 
 
 
+function getOrderBook(symbol){
+  const apiWanted = url + '/book/' + symbol;
+  return new Promise(function(resolve,reject){
+    request.get(apiWanted,function(err,res){
+      if(err){
+        reject(err);
+      }else{
+        resolve(JSON.parse(res.body));
+      }
+    })
+  })
+};
 
 async function tickerIterater() {
   const symbol = await getSymbol();
-  console.log(typeof symbol)
+  console.log(typeof symbol);
   for (const key in symbol){
-    // if (symbol[key] == 'btcusd' ){
-    //   const ticker = await getTicker(symbol[key])
-    //   console.log(key + "->" + symbol[key],"  ", ticker);
-    //   console.log(key + "->" + symbol[key],"  ",getTicker(symbol[key]));
-    // }
-    console.log(key);
-    fs.writeFile('input.txt')
-  }
-  // console.log(tickerRaw);
+    if (symbol[key] == 'btcusd' ){
+      const ticker = await getTicker(symbol[key]);
+      var orderBook = await getOrderBook(symbol[key]);
+      // console.log(key + "->" + symbol[key],"  ", ticker, "  ",orderBook);
+      // console.log(key + "->" + symbol[key],"  ",await getTicker(symbol[key]));
+    };
+  };
+  var orderBookBid = orderBook["bids"];
+  console.log(orderBookBid);
 };
 
 tickerIterater();
-
-// getTicker('ltcusd');
-
-// request.get(url + '/symbols',
-//   function(error, response, body) {
-//     console.log(body);
-// })

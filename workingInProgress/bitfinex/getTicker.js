@@ -43,7 +43,10 @@ function getOrderBook(symbol){
       if(err){
         reject(err);
       }else{
-        resolve(JSON.parse(res.body));
+        resolve({
+          symbol,
+          data: JSON.parse(res.body)
+        });
       }
     })
   })
@@ -51,51 +54,59 @@ function getOrderBook(symbol){
 
 async function tickerIterater() {
   const symbol = await getSymbol();
+  let orderBookPromises = []
+
   for (const key in symbol){
-    if (symbol[key] == 'btcusd' ){
-      const ticker = await getTicker(symbol[key]);
-      var orderBook = await getOrderBook(symbol[key]);
-      // console.log(key + "->" + symbol[key],"  ", ticker, "  ",orderBook);
-      // console.log(key + "->" + symbol[key],"  ",await getTicker(symbol[key]));
-    };
+    if (symbol[key] == 'btcusd' || symbol[key] == 'ltcusd' || symbol[key] == 'ethusd'){
+      orderBookPromises.push(getOrderBook(symbol[key]))
+    }
+    // if (symbol[key] == 'btcusd') {
+    //   // console.log(key + "->" + symbol[key],"  ", ticker, "  ",orderBook);
+    //   // console.log(key + "->" + symbol[key],"  ",await getTicker(symbol[key]));
+    // };
   };
-  var orderBookBid = orderBook["bids"];
-  var orderBookAsk = orderBook["asks"];
-  orderBookBid.forEach(element => {
-    element["source"] = "bitfinex";
-  });
-  orderBookAsk.forEach(element => {
-    element["source"] = "bitfinex";
-  });
 
-  var sumAmountBid = 0;
-  var maxPriceBid = parseFloat(orderBookBid[0]["price"]);
-  var minPriceBid = parseFloat(orderBookBid[orderBookBid.length - 1]["price"]);
-  orderBookBid.forEach(element => {
-    sumAmountBid = sumAmountBid + parseFloat(element["amount"]);
-  });
+  const orderBooks = await Promise.all(orderBookPromises)
+  // console.log('orderBooks', orderBooks)
 
+  const bidAskStates = []
 
-  var sumAmountAsk = 0;
-  var maxPriceAsk = parseFloat(orderBookAsk[orderBookAsk.length - 1]["price"]);
-  var minPriceAsk = parseFloat(orderBookAsk[0]["price"]);
-  orderBookAsk.forEach(element => {
-    sumAmountAsk = sumAmountAsk + parseFloat(element["amount"]);
-  });
+  orderBooks.map((v, i) => {
+    const orderBook = v.data
+    var orderBookBid = orderBook["bids"];
+    var orderBookAsk = orderBook["asks"];
+    orderBookBid.forEach(element => {
+      element["source"] = "bitfinex";
+    });
+    orderBookAsk.forEach(element => {
+      element["source"] = "bitfinex";
+    });
+    var sumAmountBid = 0;
+    var maxPriceBid = parseFloat(orderBookBid[0]["price"]);
+    var minPriceBid = parseFloat(orderBookBid[orderBookBid.length - 1]["price"]);
+    orderBookBid.forEach(element => {
+      sumAmountBid = sumAmountBid + parseFloat(element["amount"]);
+    });
+    var sumAmountAsk = 0;
+    var maxPriceAsk = parseFloat(orderBookAsk[orderBookAsk.length - 1]["price"]);
+    var minPriceAsk = parseFloat(orderBookAsk[0]["price"]);
+    orderBookAsk.forEach(element => {
+      sumAmountAsk = sumAmountAsk + parseFloat(element["amount"]);
+    });
+    const bidState = v.symbol + " Bid:" + minPriceBid + "~" + maxPriceBid + " amt: " + sumAmountBid + "\n"
+    const askState = v.symbol + " Ask:" + minPriceAsk + "~" + maxPriceAsk + " amt: " + sumAmountAsk + "\n"
+    bidAskStates.push(bidState, askState)
+  })
 
-  bidState = "Bid:" + minPriceBid + "~" + maxPriceBid + " amt: " + sumAmountBid + "\n" 
-  askState = "Ask:" + minPriceAsk + "~" + maxPriceAsk + " amt: " + sumAmountAsk + "\n" 
-  
   const app = http.createServer(function(req,res){
     res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.write(bidState + askState);
+    // res.write(bidState + askState);
+    res.write("this is bid and ask: "+bidAskStates);
     res.end();
   }).listen(2000);
-
+  console.log(typeof bidAskStates);
   console.log("please log in to http://localhost:2000")
-  
+
 };
 
 tickerIterater();
-
-

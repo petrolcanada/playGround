@@ -93,8 +93,8 @@ async function tickerIterater() {
     orderBookAsk.forEach(element => {
       sumAmountAsk = sumAmountAsk + parseFloat(element["amount"]);
     });
-    const bidState = v.symbol + " Bid:" + minPriceBid + "~" + maxPriceBid + " amt: " + sumAmountBid + "\n"
-    const askState = v.symbol + " Ask:" + minPriceAsk + "~" + maxPriceAsk + " amt: " + sumAmountAsk + "\n"
+    const bidState = "\n" + v.symbol + " Bid:" + minPriceBid + "~" + maxPriceBid + " amt: " + sumAmountBid + "\n"
+    const askState = "\n" + v.symbol + " Ask:" + minPriceAsk + "~" + maxPriceAsk + " amt: " + sumAmountAsk + "\n"
     bidAskStates.push(bidState, askState)
   })
 
